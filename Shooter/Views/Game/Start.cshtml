@@ -1,0 +1,136 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Start</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <div>
+        <canvas id="SelectRegionCanvas" style="position: absolute; top: 0px; left: 0px;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <canvas id="PointsCanvas" style="position: absolute; top: 0px; left: 0px;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+
+    </div>
+    <div id="FunctionMenu" style="position:absolute; top: 0px; left: 0px;">
+        <button id="ButtonSetPoint" type="button" style="color:red">Set Point</button>
+        <button id="ButtonSelectRegion" type="button">Select Region</button>
+        <button id="ButtonClear" type="button" onclick="clearPointsCanvas()">Clear Region</button>
+        <div id="Messenger"></div>
+    </div>
+    <script>
+        currentMode = "ButtonSetPoint";
+        selectRegionX1 = 0;
+        selectRegionX2 = 0;
+        selectRegionY1 = 0;
+        selectRegionY2 = 0;
+        mouseButtonDown = false;
+
+        function resetMenu() {
+            $("#FunctionMenu button").css("color", "black");
+            $("#Messenger").text("");
+        }
+
+        $(function () {
+            selectRegionCanvas = document.getElementById("SelectRegionCanvas");
+            selectRegionCanvas.width = window.innerWidth;
+            selectRegionCanvas.height = window.innerHeight;
+
+            pointsCanvas = document.getElementById("PointsCanvas");
+            pointsCanvas.width = window.innerWidth;
+            pointsCanvas.height = window.innerHeight;
+            pointsCanvas.addEventListener("click",
+                function (e) {
+                    switch (currentMode) {
+                        case "ButtonSetPoint":
+                            setPoint(e);
+                            break;
+                        case "ButtonClear":
+                            clearPointsCanvas();
+                            break;
+                        default:
+                            //alert("not implemented yet!");
+                            break;
+                    }
+                });
+
+            pointsCanvas.addEventListener("mousedown",
+               function (e) {
+                   mouseButtonDown = true;
+                   if ("ButtonSelectRegion" === currentMode) {
+                       $("#Messenger").text("123");
+                       selectRegionX1 = e.clientX;
+                       selectRegionY1 = e.clientY;
+                   }
+
+               });
+
+            pointsCanvas.addEventListener("mouseup",
+                function (e) {
+                    mouseButtonDown = false;
+                    clearSelectRegionCanvas();
+                });
+
+            pointsCanvas.addEventListener("mousemove",
+                function (e) {
+                    if ("ButtonSelectRegion" === currentMode && true === mouseButtonDown) {
+                        $("#Messenger").text("abc");
+                        clearSelectRegionCanvas();
+                        selectRegionX2 = e.clientX;
+                        selectRegionY2 = e.clientY;
+                        drawRectangle(selectRegionX1,
+                            selectRegionY1,
+                            selectRegionX2 - selectRegionX1,
+                            selectRegionY2 - selectRegionY1,
+                            0,
+                            255,
+                            0);
+                    }
+                    
+                });
+
+            $("#FunctionMenu button").click(function () {
+                resetMenu();
+                $(this).css("color", "red");
+                currentMode = $(this).attr('id');
+            });
+
+        });
+
+        function clearPointsCanvas() {
+            var ctx = pointsCanvas.getContext("2d");
+            ctx.clearRect(0, 0, pointsCanvas.width, pointsCanvas.height);
+        }
+        function clearSelectRegionCanvas() {
+            var ctx = selectRegionCanvas.getContext("2d");
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+
+        function setPoint(e) {
+            var ctx = pointsCanvas.getContext("2d");
+            ctx.beginPath();
+            ctx.arc(e.clientX, e.clientY, 3, 0, 2 * Math.PI);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawRectangle(x, y, height, width, r, g, b) {
+            var ctx = selectRegionCanvas.getContext("2d");
+            ctx.strokeRect(x, y, height, width);
+        }
+
+    </script>
+</body>
+</html>
